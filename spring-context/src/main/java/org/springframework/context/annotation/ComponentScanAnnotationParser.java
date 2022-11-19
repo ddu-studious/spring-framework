@@ -74,41 +74,47 @@ class ComponentScanAnnotationParser {
 
 
 	public Set<BeanDefinitionHolder> parse(AnnotationAttributes componentScan, final String declaringClass) {
+		// componentScan.getBoolean("useDefaultFilters") 作用是 添加 @Component javax.annotation.ManagedBean javax.inject.Named 作为默认扫描实例注解
 		ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(this.registry,
 				componentScan.getBoolean("useDefaultFilters"), this.environment, this.resourceLoader);
 
+		// 默认 BeanNameGenerator
 		Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("nameGenerator");
 		boolean useInheritedGenerator = (BeanNameGenerator.class == generatorClass);
-		scanner.setBeanNameGenerator(useInheritedGenerator ? this.beanNameGenerator :
+		scanner.setBeanNameGenerator(useInheritedGenerator ? this.beanNameGenerator : // ConfigurationClassPostProcessor 默认BeanNameGenerator 是 AnnotationBeanNameGenerator
 				BeanUtils.instantiateClass(generatorClass));
 
-		ScopedProxyMode scopedProxyMode = componentScan.getEnum("scopedProxy");
+		ScopedProxyMode scopedProxyMode = componentScan.getEnum("scopedProxy"); // 默认 ScopedProxyMode.DEFAULT
 		if (scopedProxyMode != ScopedProxyMode.DEFAULT) {
 			scanner.setScopedProxyMode(scopedProxyMode);
 		}
 		else {
-			Class<? extends ScopeMetadataResolver> resolverClass = componentScan.getClass("scopeResolver");
+			Class<? extends ScopeMetadataResolver> resolverClass = componentScan.getClass("scopeResolver"); // 默认 AnnotationScopeMetadataResolver.class;
 			scanner.setScopeMetadataResolver(BeanUtils.instantiateClass(resolverClass));
 		}
 
 		scanner.setResourcePattern(componentScan.getString("resourcePattern"));
 
+		// 自定义扫描注解
 		for (AnnotationAttributes filter : componentScan.getAnnotationArray("includeFilters")) {
 			for (TypeFilter typeFilter : typeFiltersFor(filter)) {
 				scanner.addIncludeFilter(typeFilter);
 			}
 		}
+		// 自定义排除注解
 		for (AnnotationAttributes filter : componentScan.getAnnotationArray("excludeFilters")) {
 			for (TypeFilter typeFilter : typeFiltersFor(filter)) {
 				scanner.addExcludeFilter(typeFilter);
 			}
 		}
 
-		boolean lazyInit = componentScan.getBoolean("lazyInit");
+		// 如果懒加载，则标记扫描到的BeanDefinition为懒加载实例
+		boolean lazyInit = componentScan.getBoolean("lazyInit"); // 默认 false
 		if (lazyInit) {
 			scanner.getBeanDefinitionDefaults().setLazyInit(true);
 		}
 
+		// 扫描包路径
 		Set<String> basePackages = new LinkedHashSet<>();
 		String[] basePackagesArray = componentScan.getStringArray("basePackages");
 		for (String pkg : basePackagesArray) {
@@ -123,12 +129,15 @@ class ComponentScanAnnotationParser {
 			basePackages.add(ClassUtils.getPackageName(declaringClass));
 		}
 
+		// 扫描排除自己
 		scanner.addExcludeFilter(new AbstractTypeHierarchyTraversingFilter(false, false) {
 			@Override
 			protected boolean matchClassName(String className) {
 				return declaringClass.equals(className);
 			}
 		});
+
+		// 扫描，找到所有BeanDefinition，如果是代理模式，则返回被代理的BeanDefinition
 		return scanner.doScan(StringUtils.toStringArray(basePackages));
 	}
 

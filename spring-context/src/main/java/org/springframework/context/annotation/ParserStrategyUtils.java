@@ -41,11 +41,12 @@ abstract class ParserStrategyUtils {
 	 * {@link EnvironmentAware}, and {@link ResourceLoaderAware} contracts
 	 * if implemented by the given object.
 	 */
+	// ResourceLoaderAware 资源加载、EnvironmentAware 环境、BeanFactoryAware 容器、BeanClassLoaderAware 类加载器
 	public static void invokeAwareMethods(Object parserStrategyBean, Environment environment,
 			ResourceLoader resourceLoader, BeanDefinitionRegistry registry) {
 
-		if (parserStrategyBean instanceof Aware) {
-			if (parserStrategyBean instanceof BeanClassLoaderAware) {
+		if (parserStrategyBean instanceof Aware) { // 实现感知接口
+			if (parserStrategyBean instanceof BeanClassLoaderAware) { //
 				ClassLoader classLoader = (registry instanceof ConfigurableBeanFactory ?
 						((ConfigurableBeanFactory) registry).getBeanClassLoader() : resourceLoader.getClassLoader());
 				if (classLoader != null) {

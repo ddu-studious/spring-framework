@@ -281,6 +281,7 @@ configure(rootProject) {
 		testCompile("org.aspectj:aspectjweaver:${aspectjVersion}")
 		testCompile("org.hsqldb:hsqldb:${hsqldbVersion}")
 		testCompile("org.hibernate:hibernate-core:5.1.12.Final")
+        testCompile(project(":spring-ddu"))
 	}
 
 	artifacts {

@@ -78,9 +78,10 @@ abstract class ConfigurationClassUtils {
 	 * @param metadataReaderFactory the current factory in use by the caller
 	 * @return whether the candidate qualifies as (any kind of) configuration class
 	 */
+	// 检查是否为配置类
 	public static boolean checkConfigurationClassCandidate(BeanDefinition beanDef, MetadataReaderFactory metadataReaderFactory) {
 		String className = beanDef.getBeanClassName();
-		if (className == null || beanDef.getFactoryMethodName() != null) {
+		if (className == null || beanDef.getFactoryMethodName() != null) { // FactoryMethodName ？
 			return false;
 		}
 
@@ -110,9 +111,13 @@ abstract class ConfigurationClassUtils {
 		}
 
 		if (isFullConfigurationCandidate(metadata)) {
+			// 类有 @Configuration 注解，标记为Full配置类
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
 		else if (isLiteConfigurationCandidate(metadata)) {
+			// 非接口
+			// 类有 @Component, @ComponentScan, @Import, @ImportResource 其中一个注解，则标记Lite配置类
+			// 类方法有 @Bean 注解，标记为Lite配置类
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}
 		else {
@@ -165,6 +170,7 @@ abstract class ConfigurationClassUtils {
 		}
 
 		// Any of the typical annotations found?
+		// candidateIndicators has (Component, ComponentScan, Import, ImportResource)
 		for (String indicator : candidateIndicators) {
 			if (metadata.isAnnotated(indicator)) {
 				return true;

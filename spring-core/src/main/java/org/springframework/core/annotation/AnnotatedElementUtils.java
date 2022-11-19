@@ -925,7 +925,7 @@ public class AnnotatedElementUtils {
 				if (currentAnnotationType == annotationType ||
 						currentAnnotationType.getName().equals(annotationName) ||
 						processor.alwaysProcesses()) {
-					T result = processor.process(element, annotation, metaDepth);
+						T result = processor.process(element, annotation, metaDepth);
 					if (result != null) {
 						if (processor.aggregates() && metaDepth == 0) {
 							processor.getAggregatedResults().add(result);

@@ -77,12 +77,18 @@ class ConditionEvaluator {
 	 * @param phase the phase of the call
 	 * @return if the item should be skipped
 	 */
+	// 判断实例是否有 @Conditional 注解，当有该注解
+	// 判断是否是实现 ConfigurationCondition，是则判断当前 @Conditional 注解是否可以对应上该阶段，可以对应上则判断是否需要跳过
+	// 没实现 ConfigurationCondition，则直接判断是否可以跳过。
+	// matches 方法判断跳过
 	public boolean shouldSkip(@Nullable AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {
+		// 判断配置类是否有条件注解（ @Conditional ）
 		if (metadata == null || !metadata.isAnnotated(Conditional.class.getName())) {
 			return false;
 		}
 
-		if (phase == null) {
+		if (phase == null) { // 解析配置 or 注册实例 or Null
+			// 判断实例是配置类，按照配置类重新校验该实例，否则按照注册校验
 			if (metadata instanceof AnnotationMetadata &&
 					ConfigurationClassUtils.isConfigurationCandidate((AnnotationMetadata) metadata)) {
 				return shouldSkip(metadata, ConfigurationPhase.PARSE_CONFIGURATION);
@@ -148,7 +154,7 @@ class ConditionEvaluator {
 				@Nullable Environment environment, @Nullable ResourceLoader resourceLoader) {
 
 			this.registry = registry;
-			this.beanFactory = deduceBeanFactory(registry);
+			this.beanFactory = deduceBeanFactory(registry); // 底层容器推断，拿到原生BeanFactory
 			this.environment = (environment != null ? environment : deduceEnvironment(registry));
 			this.resourceLoader = (resourceLoader != null ? resourceLoader : deduceResourceLoader(registry));
 			this.classLoader = deduceClassLoader(resourceLoader, this.beanFactory);

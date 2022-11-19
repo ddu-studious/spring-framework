@@ -47,6 +47,7 @@ public class StandardClassMetadata implements ClassMetadata {
 	/**
 	 * Return the underlying Class.
 	 */
+	// Bean Class
 	public final Class<?> getIntrospectedClass() {
 		return this.introspectedClass;
 	}

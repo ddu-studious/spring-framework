@@ -146,36 +146,59 @@ public class AnnotationConfigUtils {
 	public static Set<BeanDefinitionHolder> registerAnnotationConfigProcessors(
 			BeanDefinitionRegistry registry, @Nullable Object source) {
 
+		// 拆包DefaultListableBeanFactory
 		DefaultListableBeanFactory beanFactory = unwrapDefaultListableBeanFactory(registry);
 		if (beanFactory != null) {
-			if (!(beanFactory.getDependencyComparator() instanceof AnnotationAwareOrderComparator)) {
-				beanFactory.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
+			// 排序
+			if (!(beanFactory.getDependencyComparator() instanceof AnnotationAwareOrderComparator)) { // 不存在，则添加
+				beanFactory.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE); // 注解感知 排序比较器
 			}
-			if (!(beanFactory.getAutowireCandidateResolver() instanceof ContextAnnotationAutowireCandidateResolver)) {
+			// 自动装配 候选解析器
+			if (!(beanFactory.getAutowireCandidateResolver() instanceof ContextAnnotationAutowireCandidateResolver)) { // 不存在，则添加
 				beanFactory.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());
 			}
 		}
 
+		// BeanDefinition持有集合
 		Set<BeanDefinitionHolder> beanDefs = new LinkedHashSet<>(4);
 
+		// 配置注解工厂处理器 ConfigurationClassPostProcessor
+		// ConfigurationClassPostProcessor -> (BeanDefinitionRegistryPostProcessor, BeanFactoryPostProcessor)
+		// ConfigurationClassPostProcessor -> (PriorityOrdered, Ordered)
+		// ConfigurationClassPostProcessor has (ResourceLoader, BeanClassLoader, Environment)
 		if (!registry.containsBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(ConfigurationClassPostProcessor.class);
 			def.setSource(source);
 			beanDefs.add(registerPostProcessor(registry, def, CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME));
 		}
 
+		// 自动装配注解处理器 AutowiredAnnotationBeanPostProcessor
+		// AutowiredAnnotationBeanPostProcessor -> (MergedBeanDefinitionPostProcessor, BeanPostProcessor)
+		// AutowiredAnnotationBeanPostProcessor -> (Priority, BeanPostProcessor)
+		// AutowiredAnnotationBeanPostProcessor has BeanFactory
 		if (!registry.containsBeanDefinition(AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(AutowiredAnnotationBeanPostProcessor.class);
 			def.setSource(source);
 			beanDefs.add(registerPostProcessor(registry, def, AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME));
 		}
 
+		// 实例化 -相关- 处理器 RequiredAnnotationBeanPostProcessor
+		// RequiredAnnotationBeanPostProcessor -> (SmartInstantiationAwareBeanPostProcessor, InstantiationAwareBeanPostProcessor, BeanPostProcessor)
+		// RequiredAnnotationBeanPostProcessor -> (MergedBeanDefinitionPostProcessor, BeanPostProcessor)
+		// RequiredAnnotationBeanPostProcessor -> (PriorityOrdered, Ordered)
+		// RequiredAnnotationBeanPostProcessor has BeanFactory
 		if (!registry.containsBeanDefinition(REQUIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(RequiredAnnotationBeanPostProcessor.class);
 			def.setSource(source);
 			beanDefs.add(registerPostProcessor(registry, def, REQUIRED_ANNOTATION_PROCESSOR_BEAN_NAME));
 		}
 
+		// 实例化、销毁、BeanDefinition -相关- CommonAnnotationBeanPostProcessor
+		// CommonAnnotationBeanPostProcessor -> (DestructionAwareBeanPostProcessor, BeanPostProcessor)  销毁相关
+		// CommonAnnotationBeanPostProcessor -> (MergedBeanDefinitionPostProcessor, BeanPostProcessor)
+		// CommonAnnotationBeanPostProcessor -> (InstantiationAwareBeanPostProcessor, BeanPostProcessor)
+		// CommonAnnotationBeanPostProcessor -> (PriorityOrdered, Ordered)
+		// CommonAnnotationBeanPostProcessor has BeanFactory
 		// Check for JSR-250 support, and if present add the CommonAnnotationBeanPostProcessor.
 		if (jsr250Present && !registry.containsBeanDefinition(COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(CommonAnnotationBeanPostProcessor.class);
@@ -183,6 +206,12 @@ public class AnnotationConfigUtils {
 			beanDefs.add(registerPostProcessor(registry, def, COMMON_ANNOTATION_PROCESSOR_BEAN_NAME));
 		}
 
+		// jpa -相关- （包含实例化、销毁、BeanDefinition） PersistenceAnnotationBeanPostProcessor
+		// PersistenceAnnotationBeanPostProcessor -> (InstantiationAwareBeanPostProcessor, BeanPostProcessor)
+		// PersistenceAnnotationBeanPostProcessor -> (DestructionAwareBeanPostProcessor, BeanPostProcessor)
+		// PersistenceAnnotationBeanPostProcessor -> (MergedBeanDefinitionPostProcessor, BeanPostProcessor)
+		// PersistenceAnnotationBeanPostProcessor -> (PriorityOrdered, Ordered)
+		// PersistenceAnnotationBeanPostProcessor has BeanFactory
 		// Check for JPA support, and if present add the PersistenceAnnotationBeanPostProcessor.
 		if (jpaPresent && !registry.containsBeanDefinition(PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition();
@@ -198,11 +227,16 @@ public class AnnotationConfigUtils {
 			beanDefs.add(registerPostProcessor(registry, def, PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME));
 		}
 
+		// EventListenerMethodProcessor
+		// EventListenerMethodProcessor -> (SmartInitializingSingleton)
+		// EventListenerMethodProcessor has ApplicationContext
 		if (!registry.containsBeanDefinition(EVENT_LISTENER_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(EventListenerMethodProcessor.class);
 			def.setSource(source);
 			beanDefs.add(registerPostProcessor(registry, def, EVENT_LISTENER_PROCESSOR_BEAN_NAME));
 		}
+		// DefaultEventListenerFactory
+		// DefaultEventListenerFactory -> (EventListenerFactory)
 		if (!registry.containsBeanDefinition(EVENT_LISTENER_FACTORY_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(DefaultEventListenerFactory.class);
 			def.setSource(source);
@@ -212,6 +246,10 @@ public class AnnotationConfigUtils {
 		return beanDefs;
 	}
 
+	/**
+	 * 注册BeanDefinition，返回BeanDefinition持有
+	 * @return
+	 */
 	private static BeanDefinitionHolder registerPostProcessor(
 			BeanDefinitionRegistry registry, RootBeanDefinition definition, String beanName) {
 
@@ -237,6 +275,7 @@ public class AnnotationConfigUtils {
 		processCommonDefinitionAnnotations(abd, abd.getMetadata());
 	}
 
+	// @Lazy/@Primary/@DependsOn 在BeanDefinition中标记
 	static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd, AnnotatedTypeMetadata metadata) {
 		AnnotationAttributes lazy = attributesFor(metadata, Lazy.class);
 		if (lazy != null) {
@@ -270,11 +309,12 @@ public class AnnotationConfigUtils {
 		}
 	}
 
+	// 应用作用域代理模式
 	static BeanDefinitionHolder applyScopedProxyMode(
 			ScopeMetadata metadata, BeanDefinitionHolder definition, BeanDefinitionRegistry registry) {
 
 		ScopedProxyMode scopedProxyMode = metadata.getScopedProxyMode();
-		if (scopedProxyMode.equals(ScopedProxyMode.NO)) {
+		if (scopedProxyMode.equals(ScopedProxyMode.NO)) { // ScopedProxyMode.DEFAULT; 默认
 			return definition;
 		}
 		boolean proxyTargetClass = scopedProxyMode.equals(ScopedProxyMode.TARGET_CLASS);
