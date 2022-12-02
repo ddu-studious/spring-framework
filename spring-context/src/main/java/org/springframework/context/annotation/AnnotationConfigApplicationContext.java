@@ -50,6 +50,7 @@ import org.springframework.util.Assert;
  * @see ClassPathBeanDefinitionScanner
  * @see org.springframework.context.support.GenericXmlApplicationContext
  */
+// registerShutdownHook 在可配置容器接口中  ConfigurableApplicationContext
 public class AnnotationConfigApplicationContext extends GenericApplicationContext implements AnnotationConfigRegistry {
 
 	private final AnnotatedBeanDefinitionReader reader;
@@ -63,7 +64,10 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	public AnnotationConfigApplicationContext() {
 		// 注解BeanDefinition读取器
+		// 注册基础后置处理器（包括工厂后置处理器 - 扫包使用）
+		// AnnotatedBeanDefinitionReader 注册的工厂后置处理器 （ConfigurationClassPostProcessor）就是通过创建 ClassPathBeanDefinitionScanner 来扫包的
 		this.reader = new AnnotatedBeanDefinitionReader(this);
+		// 初始化ClassPathBeanDefinitionScanner，应该仅是为了ApplicationContext拥有扫包的能力
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
 

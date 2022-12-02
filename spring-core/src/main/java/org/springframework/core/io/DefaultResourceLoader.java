@@ -91,6 +91,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 	 * ClassPathResource objects created by this resource loader.
 	 * @see ClassPathResource
 	 */
+	// 自定义类加载器 -> 线程类加载器 -> ClassUtils类加载器 -> 系统类加载器
 	@Override
 	@Nullable
 	public ClassLoader getClassLoader() {

@@ -40,6 +40,7 @@ import org.springframework.lang.Nullable;
  * @author Chris Beams
  * @since 03.11.2003
  */
+// 可配置的
 public interface ConfigurableApplicationContext extends ApplicationContext, Lifecycle, Closeable {
 
 	/**
@@ -145,6 +146,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	 * resolution rules. It may therefore also override any default rules.
 	 * @since 4.3
 	 */
+	// 协议解析器
 	void addProtocolResolver(ProtocolResolver resolver);
 
 	/**

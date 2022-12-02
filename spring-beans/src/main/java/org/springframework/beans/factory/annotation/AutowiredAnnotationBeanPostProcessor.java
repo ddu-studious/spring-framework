@@ -242,7 +242,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		// Let's check for lookup methods here..
 		if (!this.lookupMethodsChecked.contains(beanName)) {
 			try {
-				ReflectionUtils.doWithMethods(beanClass, method -> {
+				ReflectionUtils.doWithMethods(beanClass, method -> { // 类方法上有没有Lookup注解
 					Lookup lookup = method.getAnnotation(Lookup.class);
 					if (lookup != null) {
 						Assert.state(beanFactory != null, "No BeanFactory available");
@@ -283,7 +283,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					List<Constructor<?>> candidates = new ArrayList<>(rawCandidates.length);
 					Constructor<?> requiredConstructor = null;
 					Constructor<?> defaultConstructor = null;
-					Constructor<?> primaryConstructor = BeanUtils.findPrimaryConstructor(beanClass);
+					Constructor<?> primaryConstructor = BeanUtils.findPrimaryConstructor(beanClass); // kotlin
 					int nonSyntheticConstructors = 0;
 					for (Constructor<?> candidate : rawCandidates) {
 						if (!candidate.isSynthetic()) {
@@ -292,7 +292,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 						else if (primaryConstructor != null) {
 							continue;
 						}
-						AnnotationAttributes ann = findAutowiredAnnotation(candidate);
+						AnnotationAttributes ann = findAutowiredAnnotation(candidate); // 构造方法是否有注解 @Value @Autowired
 						if (ann == null) {
 							Class<?> userClass = ClassUtils.getUserClass(beanClass);
 							if (userClass != beanClass) {
@@ -313,7 +313,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 										". Found constructor with 'required' Autowired annotation already: " +
 										requiredConstructor);
 							}
-							boolean required = determineRequiredStatus(ann);
+							boolean required = determineRequiredStatus(ann); // 是否必须存在
 							if (required) {
 								if (!candidates.isEmpty()) {
 									throw new BeanCreationException(beanName,
@@ -325,7 +325,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 							}
 							candidates.add(candidate);
 						}
-						else if (candidate.getParameterCount() == 0) {
+						else if (candidate.getParameterCount() == 0) { // 无参构造
 							defaultConstructor = candidate;
 						}
 					}
@@ -348,10 +348,10 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 						candidateConstructors = new Constructor<?>[] {rawCandidates[0]};
 					}
 					else if (nonSyntheticConstructors == 2 && primaryConstructor != null
-							&& defaultConstructor != null && !primaryConstructor.equals(defaultConstructor)) {
+							&& defaultConstructor != null && !primaryConstructor.equals(defaultConstructor)) { // 不关注
 						candidateConstructors = new Constructor<?>[] {primaryConstructor, defaultConstructor};
 					}
-					else if (nonSyntheticConstructors == 1 && primaryConstructor != null) {
+					else if (nonSyntheticConstructors == 1 && primaryConstructor != null) { // 不关注
 						candidateConstructors = new Constructor<?>[] {primaryConstructor};
 					}
 					else {

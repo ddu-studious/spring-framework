@@ -162,6 +162,8 @@ class ConstructorResolver {
 							"] from ClassLoader [" + beanClass.getClassLoader() + "] failed", ex);
 				}
 			}
+
+			// 先可见先，后构造参数多排在前面
 			AutowireUtils.sortConstructors(candidates);
 			int minTypeDiffWeight = Integer.MAX_VALUE;
 			Set<Constructor<?>> ambiguousConstructors = null;
@@ -170,7 +172,7 @@ class ConstructorResolver {
 			for (Constructor<?> candidate : candidates) {
 				Class<?>[] paramTypes = candidate.getParameterTypes();
 
-				if (constructorToUse != null && argsToUse.length > paramTypes.length) {
+				if (constructorToUse != null && argsToUse.length > paramTypes.length) { // 已经存在可用构造constructorToUse，且argsToUse构造的参数大于当前构造的参数，则直接break。
 					// Already found greedy constructor that can be satisfied ->
 					// do not look any further, there are only less greedy constructors left.
 					break;
@@ -182,6 +184,7 @@ class ConstructorResolver {
 				ArgumentsHolder argsHolder;
 				if (resolvedValues != null) {
 					try {
+						// @ConstructorProperties#values()
 						String[] paramNames = ConstructorPropertiesChecker.evaluate(candidate, paramTypes.length);
 						if (paramNames == null) {
 							ParameterNameDiscoverer pnd = this.beanFactory.getParameterNameDiscoverer();
@@ -189,6 +192,7 @@ class ConstructorResolver {
 								paramNames = pnd.getParameterNames(candidate);
 							}
 						}
+						// 根据构造参数获得对应Bean
 						argsHolder = createArgumentArray(beanName, mbd, resolvedValues, bw, paramTypes, paramNames,
 								getUserDeclaredConstructor(candidate), autowiring);
 					}
@@ -217,9 +221,9 @@ class ConstructorResolver {
 						argsHolder.getTypeDifferenceWeight(paramTypes) : argsHolder.getAssignabilityWeight(paramTypes));
 				// Choose this constructor if it represents the closest match.
 				if (typeDiffWeight < minTypeDiffWeight) {
-					constructorToUse = candidate;
+					constructorToUse = candidate;  // 使用的构造
 					argsHolderToUse = argsHolder;
-					argsToUse = argsHolder.arguments;
+					argsToUse = argsHolder.arguments; // 使用构造参数
 					minTypeDiffWeight = typeDiffWeight;
 					ambiguousConstructors = null;
 				}

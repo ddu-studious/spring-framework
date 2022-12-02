@@ -271,6 +271,7 @@ public class AnnotationConfigUtils {
 		}
 	}
 
+	// @Lazy/@Primary/@DependsOn 在BeanDefinition中标记
 	public static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd) {
 		processCommonDefinitionAnnotations(abd, abd.getMetadata());
 	}

@@ -85,6 +85,7 @@ public class AnnotatedBeanDefinitionReader {
 		this.registry = registry;// 启动容器
 		this.conditionEvaluator = new ConditionEvaluator(registry, environment, null);
 		// 注册注解配置处理器
+		// 注册基础后置处理器（包括工厂后置处理器 - 扫包使用）
 		AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
 	}
 
@@ -224,6 +225,7 @@ public class AnnotatedBeanDefinitionReader {
 		abd.setScope(scopeMetadata.getScopeName());
 		String beanName = (name != null ? name : this.beanNameGenerator.generateBeanName(abd, this.registry));
 
+		// @Lazy/@Primary/@DependsOn 在BeanDefinition中标记
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(abd);
 		if (qualifiers != null) {
 			for (Class<? extends Annotation> qualifier : qualifiers) {
@@ -238,12 +240,16 @@ public class AnnotatedBeanDefinitionReader {
 				}
 			}
 		}
+
+		// 自定义BeanDefinition
 		for (BeanDefinitionCustomizer customizer : definitionCustomizers) {
 			customizer.customize(abd);
 		}
 
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(abd, beanName);
+		// 应用作用域代理模式
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+		// 注册BeanDefinition
 		BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
 	}
 

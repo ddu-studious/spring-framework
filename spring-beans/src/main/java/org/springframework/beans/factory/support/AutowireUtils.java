@@ -50,6 +50,7 @@ import org.springframework.util.ClassUtils;
 abstract class AutowireUtils {
 
 	/**
+	 * 先可见性，再参数数量，构造参数多排在前面
 	 * Sort the given constructors, preferring public constructors and "greedy" ones with
 	 * a maximum number of arguments. The result will contain public constructors first,
 	 * with decreasing number of arguments, then non-public constructors, again with
