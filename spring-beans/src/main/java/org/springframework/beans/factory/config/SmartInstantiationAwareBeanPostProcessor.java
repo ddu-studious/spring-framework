@@ -35,6 +35,8 @@ import org.springframework.lang.Nullable;
  * @since 2.0.3
  * @see InstantiationAwareBeanPostProcessorAdapter
  */
+// 实例化感知后置处理器
+// 增加构造推断能力、循环依赖解决
 public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationAwareBeanPostProcessor {
 
 	/**
@@ -59,6 +61,7 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
 	 * @return the candidate constructors, or {@code null} if none specified
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 */
+	// 确定构造方法
 	@Nullable
 	default Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, String beanName)
 			throws BeansException {
@@ -87,6 +90,7 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
 	 * (typically with the passed-in bean instance as default)
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 */
+	// 早期Bean引用，解决循环依赖问题
 	default Object getEarlyBeanReference(Object bean, String beanName) throws BeansException {
 		return bean;
 	}
