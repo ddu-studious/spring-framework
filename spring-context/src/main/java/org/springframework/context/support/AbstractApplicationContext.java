@@ -565,6 +565,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.  发布相关的事件
+				// 生命周期 Lifecycle
+				// 发布事件  ContextStartedEvent
+				// 发布事件  ContextRefreshedEvent
 				finishRefresh();
 			}
 
@@ -906,12 +909,15 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		initLifecycleProcessor();
 
 		// Propagate refresh to lifecycle processor first. // 传播
+		// 生命周期 start
+		// 发布事件  ContextStartedEvent
 		getLifecycleProcessor().onRefresh();
 
 		// Publish the final event.
 		publishEvent(new ContextRefreshedEvent(this));
 
 		// Participate in LiveBeansView MBean, if active.
+		// jvm 监控注册
 		LiveBeansView.registerApplicationContext(this);
 	}
 
@@ -1008,6 +1014,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see #close()
 	 * @see #registerShutdownHook()
 	 */
+	// 发布事件  ContextClosedEvent
+	// 发布事件  ContextStoppedEvent
 	protected void doClose() {
 		if (this.active.get() && this.closed.compareAndSet(false, true)) {
 			if (logger.isInfoEnabled()) {

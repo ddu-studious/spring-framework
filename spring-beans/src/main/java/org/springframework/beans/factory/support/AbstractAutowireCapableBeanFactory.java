@@ -578,7 +578,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Initialize the bean instance.
 		Object exposedObject = bean;
 		try {
+			// 实例填充
+			// 实例化后，注入    ->   // 实例化感知后置处理器
 			populateBean(beanName, mbd, instanceWrapper);
+			// 初始化
+			// 初始化前  ->   初始化   ->   初始化后
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
