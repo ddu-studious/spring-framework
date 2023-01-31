@@ -41,6 +41,8 @@ package org.springframework.beans.factory;
  * @since 4.1
  * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory#preInstantiateSingletons()
  */
+// 在容器初始化期间，单例预实例化阶段的结束触发接口回调
+// 使用场景： Spring Cloud 负载均衡处理，RestTemplate 插件 RetryLoadBalancerInterceptor 重试负载均衡器的时候使用。使该插件放入最后一个执行
 public interface SmartInitializingSingleton {
 
 	/**
