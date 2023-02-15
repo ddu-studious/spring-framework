@@ -44,6 +44,7 @@ import org.springframework.util.StringUtils;
  * @see AbstractAutoProxyCreator
  */
 @SuppressWarnings("serial")
+// 可以指定某些对象，批量代理
 public class BeanNameAutoProxyCreator extends AbstractAutoProxyCreator {
 
 	@Nullable

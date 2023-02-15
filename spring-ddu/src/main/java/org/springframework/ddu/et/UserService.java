@@ -9,4 +9,8 @@ public class UserService implements IUserService {
 		System.out.println(this + ": 吃吃吃");
 	}
 
+	public void go() {
+		System.out.println(this + ": 跑跑跑");
+	}
+
 }

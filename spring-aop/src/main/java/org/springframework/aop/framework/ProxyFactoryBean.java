@@ -91,6 +91,7 @@ import org.springframework.util.ObjectUtils;
  * @see Advised
  */
 @SuppressWarnings("serial")
+// 可以将代理对象注入到容器，使用的就是FactoryBean模式
 public class ProxyFactoryBean extends ProxyCreatorSupport
 		implements FactoryBean<Object>, BeanClassLoaderAware, BeanFactoryAware {
 
