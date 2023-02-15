@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class MyAspect {
 
+	// https://www.cnblogs.com/powerwu/articles/5170861.html
+
 	@DeclareParents(value = "org.springframework.ddu.et.UserService", defaultImpl = Verifier.class)
 	public IVerifier verifier;
 
