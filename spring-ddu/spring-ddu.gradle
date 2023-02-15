@@ -12,5 +12,7 @@ repositories {
 dependencies {
     testImplementation 'junit:junit:4.12'
     compile(project(":spring-context"))
+    compile("org.aspectj:aspectjrt:1.9.5")
+    compile("org.aspectj:aspectjweaver:1.9.5")
 
 }
