@@ -144,6 +144,7 @@ class ConfigurationClassBeanDefinitionReader {
 		}
 		// 导入资源
 		loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
+		// ImportBeanDefinitionRegister 可以修改BeanFactory加载的类配置
 		loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
 	}
 
