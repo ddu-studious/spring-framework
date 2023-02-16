@@ -229,7 +229,7 @@ class ConfigurationClassParser {
 
 		ConfigurationClass existingClass = this.configurationClasses.get(configClass);
 		if (existingClass != null) {
-			if (configClass.isImported()) {
+			if (configClass.isImported()) { //
 				if (existingClass.isImported()) {
 					existingClass.mergeImportedBy(configClass);
 				}
