@@ -76,12 +76,15 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/** Logger available to subclasses */
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	// 单例池
 	/** Cache of singleton objects: bean name --> bean instance */
 	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
 
+	// 早期类工厂
 	/** Cache of singleton factories: bean name --> ObjectFactory */
 	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 
+	// 早期单例池
 	/** Cache of early singleton objects: bean name --> bean instance */
 	private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
@@ -156,8 +159,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	protected void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(singletonFactory, "Singleton factory must not be null");
 		synchronized (this.singletonObjects) {
-			if (!this.singletonObjects.containsKey(beanName)) {
-				this.singletonFactories.put(beanName, singletonFactory);
+			if (!this.singletonObjects.containsKey(beanName)) { // 单例池中不存在该Bean
+				this.singletonFactories.put(beanName, singletonFactory); // 单例工厂
 				this.earlySingletonObjects.remove(beanName);
 				this.registeredSingletons.add(beanName);
 			}
@@ -178,18 +181,20 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @param allowEarlyReference whether early references should be created or not
 	 * @return the registered singleton object, or {@code null} if none found
 	 */
+	// 解决循环依赖问题
+	// 关联两个方法：addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) 添加单例工厂、getSingleton(String beanName, boolean allowEarlyReference) 获取早期单例
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
 		Object singletonObject = this.singletonObjects.get(beanName);
-		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) { // 单例Bean是否正常创建
 			synchronized (this.singletonObjects) {
-				singletonObject = this.earlySingletonObjects.get(beanName);
-				if (singletonObject == null && allowEarlyReference) {
-					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+				singletonObject = this.earlySingletonObjects.get(beanName); // 早期单例池
+				if (singletonObject == null && allowEarlyReference) { // 允许使用早期单例
+					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName); // 单例工厂， SmartInstantiationAwareBeanPostProcessor.getEarlyBeanReference 可以改变早期类形态
 					if (singletonFactory != null) {
-						singletonObject = singletonFactory.getObject();
-						this.earlySingletonObjects.put(beanName, singletonObject);
-						this.singletonFactories.remove(beanName);
+						singletonObject = singletonFactory.getObject(); // 获得早期类
+						this.earlySingletonObjects.put(beanName, singletonObject); // 早期类加入早期单例池
+						this.singletonFactories.remove(beanName); // 移除单例工厂
 					}
 				}
 			}

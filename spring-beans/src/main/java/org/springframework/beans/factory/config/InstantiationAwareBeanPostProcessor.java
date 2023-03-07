@@ -69,7 +69,9 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * @see org.springframework.beans.factory.support.AbstractBeanDefinition#hasBeanClass
 	 * @see org.springframework.beans.factory.support.AbstractBeanDefinition#getFactoryMethodName
 	 */
+	// @Order(1)
 	// 实例化前
+	// 在实例化对象前，调用该方法。如果返回一个实例，则直接到初始化后，就完成Bean的生成生命周期的全过程
 	@Nullable
 	default Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
 		return null;
@@ -89,7 +91,9 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * instances being invoked on this bean instance.
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 */
+	// @Order(2)
 	// 实例化后
+	// 对象填充的时候调用 AbstractAutowireCapableBeanFactory.populateBean()
 	default boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
 		return true;
 	}
@@ -113,6 +117,8 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see org.springframework.beans.MutablePropertyValues
 	 */
+	// @Order(3)
+	// 调用顺序是在实例化后的
 	// 初始化后，往bean中注入属性
 	@Nullable
 	default PropertyValues postProcessPropertyValues(

@@ -69,6 +69,7 @@ public abstract class InstantiationAwareBeanPostProcessorAdapter implements Smar
 		return true;
 	}
 
+	// 单例实例化后调用
 	@Override
 	public PropertyValues postProcessPropertyValues(
 			PropertyValues pvs, PropertyDescriptor[] pds, Object bean, String beanName) throws BeansException {

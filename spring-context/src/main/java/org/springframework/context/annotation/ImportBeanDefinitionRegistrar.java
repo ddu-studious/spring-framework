@@ -47,6 +47,13 @@ import org.springframework.core.type.AnnotationMetadata;
  * @see ImportSelector
  * @see Configuration
  */
+// 执行时机
+// 在BeanFactoryPostProcessor的实现类ConfigurationClassPostProcessor加载完所有BeanDefinition的时候，
+// 调用ConfigurationClassBeanDefinitionReader.loadBeanDefinitions(configClasses);
+// 来执行该类的registerBeanDefinitions方法，进行第二次BeanDefinition的加载。
+
+	// dubbo 使用用例方式，先通过ConfigurationClassPostProcessor加载到Dubbo自定义的扫描Dubbo BeanDefinition的BeanFactoryPostProcessor，
+	// 当执行完Spring的BeanFactoryPostProcessor,就开始执行Dubbo定义的
 public interface ImportBeanDefinitionRegistrar {
 
 	/**
