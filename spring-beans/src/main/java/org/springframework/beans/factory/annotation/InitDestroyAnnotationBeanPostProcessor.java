@@ -79,7 +79,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 	protected transient Log logger = LogFactory.getLog(getClass());
 
 	@Nullable
-	private Class<? extends Annotation> initAnnotationType;
+	private Class<? extends Annotation> initAnnotationType; // @PostConstruct 注解类
 
 	@Nullable
 	private Class<? extends Annotation> destroyAnnotationType;
@@ -132,7 +132,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		LifecycleMetadata metadata = findLifecycleMetadata(bean.getClass());
 		try {
-			metadata.invokeInitMethods(bean, beanName);
+			metadata.invokeInitMethods(bean, beanName); // 处理 @PostConstruct 注解
 		}
 		catch (InvocationTargetException ex) {
 			throw new BeanCreationException(beanName, "Invocation of init method failed", ex.getTargetException());

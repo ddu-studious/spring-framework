@@ -47,7 +47,7 @@ import org.springframework.core.type.AnnotationMetadata;
  * @see ImportSelector
  * @see Configuration
  */
-// 执行时机
+// 执行时机     ---   在BeanDefinition加载完成后，执行ImportBeanDefinitionRegistrar.registerBeanDefinitions() 做外部扩展加载。（Dubbo、Mybatis等都是通过这种方式来再次加载必要BeanDefinition）
 // 在BeanFactoryPostProcessor的实现类ConfigurationClassPostProcessor加载完所有BeanDefinition的时候，
 // 调用ConfigurationClassBeanDefinitionReader.loadBeanDefinitions(configClasses);
 // 来执行该类的registerBeanDefinitions方法，进行第二次BeanDefinition的加载。

@@ -45,6 +45,7 @@ import org.springframework.core.type.AnnotationMetadata;
  * @see ImportBeanDefinitionRegistrar
  * @see Configuration
  */
+// ConfigurationClassPostProcessor 正常扫描完BeanDefinition后使用
 public interface ImportSelector {
 
 	/**
