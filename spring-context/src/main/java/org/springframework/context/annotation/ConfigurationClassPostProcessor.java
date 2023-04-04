@@ -337,6 +337,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 						registry, this.sourceExtractor, this.resourceLoader, this.environment,
 						this.importBeanNameGenerator, parser.getImportRegistry());
 			}
+
+			// ImportBeanDefinitionRegistrar 用户自定义扫包使用，mybatis和dubbo都是通过使用 @Import(ImportBeanDefinitionRegistrar实现类)
+			// AnnotationMetadata ?
 			this.reader.loadBeanDefinitions(configClasses);
 			alreadyParsed.addAll(configClasses);
 
